@@ -18,6 +18,7 @@ const Touchable = ({ onPress, style, children }) => {
       <TouchableNativeFeedback
         background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
         onPress={onPress}
+        {...this.props.actionProps}
       >
         <View
           style={style}
@@ -32,6 +33,7 @@ const Touchable = ({ onPress, style, children }) => {
       <TouchableOpacity
         onPress={onPress}
         style={style}
+        {...this.props.actionProps}
       >
         {children}
       </TouchableOpacity>
@@ -43,11 +45,13 @@ Touchable.propTypes = {
   onPress: PropTypes.func.isRequired,
   style: ViewPropTypes.style,
   children: PropTypes.node.isRequired,
+  actionProps: PropTypes.shape({}),
 };
 
 Touchable.defaultProps = {
   onPress: noop,
-  style: {}
+  style: {},
+  actionProps: {},
 };
 
 export default Touchable;
