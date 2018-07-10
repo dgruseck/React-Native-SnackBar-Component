@@ -61,7 +61,7 @@ class SnackbarComponent extends Component {
         >
           <Text style={[styles.text_msg, {color: this.props.messageColor}]}>{this.props.textMessage}</Text>
           {this.props.actionHandler && this.props.actionText &&
-            <Touchable onPress={() => {this.props.actionHandler()}} >
+            <Touchable onPress={() => {this.props.actionHandler()}} actionProps={this.props.actionProps} >
               <Text style={[styles.action_text, {color: this.props.accentColor}]}>{this.props.actionText.toUpperCase()}</Text>
             </Touchable>
           }
@@ -124,6 +124,7 @@ SnackbarComponent.defaultProps = {
   right: 0,
   bottom: 0,
   position: "bottom",
+  actionProps: {},
 };
 
 SnackbarComponent.propTypes = {
@@ -135,6 +136,7 @@ SnackbarComponent.propTypes = {
   right: PropTypes.number,
   bottom: PropTypes.number,
   position: PropTypes.string, // bottom (default), top
+  actionProps: PropTypes.shape({}),
 };
 
 const styles = StyleSheet.create({
