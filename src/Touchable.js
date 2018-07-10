@@ -12,13 +12,13 @@ import {
   noop,
 } from './utils';
 
-const Touchable = ({ onPress, style, children }) => {
+const Touchable = ({ onPress, style, actionProps, children }) => {
   if (IS_ANDROID && !IS_LT_LOLLIPOP) {
     return (
       <TouchableNativeFeedback
         background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
         onPress={onPress}
-        {...this.props.actionProps}
+        {...actionProps}
       >
         <View
           style={style}
@@ -33,7 +33,7 @@ const Touchable = ({ onPress, style, children }) => {
       <TouchableOpacity
         onPress={onPress}
         style={style}
-        {...this.props.actionProps}
+        {...actionProps}
       >
         {children}
       </TouchableOpacity>
