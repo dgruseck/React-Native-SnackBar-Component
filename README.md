@@ -1,6 +1,10 @@
 # React-Native-SnackBar-Component
 A snackbar component for Android and iOS, customizable and simple.
 
+## Looking for maintainers  
+Due to my other commitments, I haven't been able to maintain this library properly for a while,
+If you are interested in taking over the development of this library, raise a PR or email me at sid.swapnildevesh@gmail.com mentioning your interest. Thanks!
+
 ![Snackbar demo](https://media.giphy.com/media/zChTSWog7TNmM/giphy.gif)
 ![With fab](https://media.giphy.com/media/6oCCk98unakbC/giphy.gif)
 
@@ -36,6 +40,7 @@ import SnackBar from 'react-native-snackbar-component'
 | distanceCallback | function | Function to be caled whenever snackbar moves in and out or changes layout, the function will be supplied a number indicating distance taken up by snackbar on bottom. | (distance) => {} |
 | bottom | number | The starting bottom position of snackbar | 0 |
 | position | string | The position of the snackbar: top, bottom | bottom |
+| autoHidingTime | number | How many milliseconds the snackbar will be hidden | 0 (Do not hide automatically) |
 
 ## Note
 
