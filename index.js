@@ -168,7 +168,7 @@ SnackbarComponent.defaultProps = {
   actionText: "",
   textMessage: "",
   autoHidingTime: 0, // Default value will not auto hide the snack bar as the old version.
-  actionProps: {}
+  actionProps: {},
   containerStyle: {},
   messageStyle: {},
   actionStyle: {},
