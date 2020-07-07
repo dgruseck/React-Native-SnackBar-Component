@@ -1,16 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 import {
   View,
   TouchableOpacity,
   TouchableNativeFeedback,
   ViewPropTypes,
-} from 'react-native';
-import {
-  IS_ANDROID,
-  IS_LT_LOLLIPOP,
-  noop,
-} from './utils';
+} from "react-native";
+import { IS_ANDROID, IS_LT_LOLLIPOP, noop } from "./utils";
 
 const Touchable = ({ onPress, style, actionProps, children }) => {
   if (IS_ANDROID && !IS_LT_LOLLIPOP) {
@@ -20,29 +16,20 @@ const Touchable = ({ onPress, style, actionProps, children }) => {
         onPress={onPress}
         {...actionProps}
       >
-        <View
-          style={style}
-        >
-          {children}
-        </View>
+        <View style={style}>{children}</View>
       </TouchableNativeFeedback>
     );
   }
-  else {
-    return (
-      <TouchableOpacity
-        onPress={onPress}
-        style={style}
-        {...actionProps}
-      >
-        {children}
-      </TouchableOpacity>
-    );
-  }
+
+  return (
+    <TouchableOpacity onPress={onPress} style={style} {...actionProps}>
+      {children}
+    </TouchableOpacity>
+  );
 };
 
 Touchable.propTypes = {
-  onPress: PropTypes.func.isRequired,
+  onPress: PropTypes.func,
   style: ViewPropTypes.style,
   children: PropTypes.node.isRequired,
   actionProps: PropTypes.shape({}),

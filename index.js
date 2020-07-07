@@ -1,12 +1,15 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { StyleSheet, Text, Animated, Easing } from "react-native";
-import { Touchable } from "./src";
-import { noop } from "./src/utils";
-/*
- * Values are from https://material.io/guidelines/motion/duration-easing.html#duration-easing-dynamic-durations
- */
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import {
+  StyleSheet,
+  Text,
+  Animated,
+  Easing,
+  ViewPropTypes,
+} from 'react-native';
+import { Touchable } from './src';
 
+/* Values are from https://material.io/guidelines/motion/duration-easing.html#duration-easing-dynamic-durations */
 const easingValues = {
   entry: Easing.bezier(0.0, 0.0, 0.2, 1),
   exit: Easing.bezier(0.4, 0.0, 1, 1)
@@ -30,19 +33,21 @@ class SnackbarComponent extends Component {
     return (
       <Animated.View
         style={[
-          styles.limit_container,
+          styles.limitContainer,
           {
             height: this.state.translateValue.interpolate({
               inputRange: [0, 1],
               outputRange: [0, this.state.hideDistance]
             }),
-            backgroundColor: this.props.backgroundColor
           },
-          { [this.props.position]: this.props[this.props.position] }
+          this.props.position === 'top'
+            ? { top: this.props.top }
+            : { bottom: this.props.bottom },
         ]}
       >
         <Animated.View
           style={[
+            this.props.containerStyle,
             styles.container,
             {
               backgroundColor: this.props.backgroundColor,
@@ -56,27 +61,38 @@ class SnackbarComponent extends Component {
               })
             }
           ]}
-          onLayout={event => {
-            this.setState({ hideDistance: event.nativeEvent.layout.height });
-          }}
+          onLayout={event => this.setState({ hideDistance: event.nativeEvent.layout.height })}
         >
-          <Text style={[styles.text_msg, { color: this.props.messageColor }]}>
-            {this.props.textMessage}
-          </Text>
-          {this.props.actionHandler && !!this.props.actionText && (
-            <Touchable
-              onPress={() => {
-                this.props.actionHandler();
-              }}
-              actionProps={this.props.actionProps}
-            >
+          {typeof this.props.textMessage === 'function'
+            ? this.props.textMessage()
+            : (
               <Text
-                style={[styles.action_text, { color: this.props.accentColor }]}
+                style={[
+                  this.props.messageStyle,
+                  styles.textMessage,
+                  { color: this.props.messageColor },
+                ]}
               >
-                {this.props.actionText.toUpperCase()}
+                {this.props.textMessage}
               </Text>
-            </Touchable>
-          )}
+            )
+          }
+          {this.props.actionHandler !== null && !!this.props.actionText
+            ? (
+              <Touchable onPress={this.props.actionHandler} actionProps={this.props.actionProps}>
+                <Text
+                  style={[
+                    this.props.actionStyle,
+                    styles.actionText,
+                    { color: this.props.accentColor },
+                  ]}
+                >
+                  {this.props.actionText.toUpperCase()}
+                </Text>
+              </Touchable>
+            )
+            : null
+          }
         </Animated.View>
       </Animated.View>
     );
@@ -90,7 +106,8 @@ class SnackbarComponent extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.visible && !this.props.visible) {
       Animated.timing(this.state.translateValue, {
         duration: durationValues.entry,
@@ -106,21 +123,25 @@ class SnackbarComponent extends Component {
     }
   }
 
-  componentWillUpdate(nextProps, nextState) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     if (
-      nextProps.visible !== this.props.visible ||
-      nextState.hideDistance !== this.state.hideDistance
+      this.props.distanceCallback !== null
+      && (
+        nextProps.visible !== this.props.visible
+        || nextState.hideDistance !== this.state.hideDistance
+      )
     ) {
       if (nextProps.visible) {
-        this.props.distanceCallback(nextState.hideDistance + this.props.bottom);
+        this.props.distanceCallback(nextState.hideDistance + this.props[this.props.position]);
       } else {
-        this.props.distanceCallback(this.props.bottom);
+        this.props.distanceCallback(this.props[this.props.position]);
       }
     }
   }
 
   /**
-   * Starting te animation to hide the snack bar.
+   * Starting the animation to hide the snackbar.
    * @return {null} No return.
    */
   hideSnackbar() {
@@ -133,13 +154,14 @@ class SnackbarComponent extends Component {
 }
 
 SnackbarComponent.defaultProps = {
-  accentColor: "orange",
-  messageColor: "#FFFFFF",
-  backgroundColor: "#484848",
-  distanceCallback: noop,
-  actionHandler: noop,
+  accentColor: 'orange',
+  messageColor: '#FFFFFF',
+  backgroundColor: '#484848',
+  distanceCallback: null,
+  actionHandler: null,
   left: 0,
   right: 0,
+  top: 0,
   bottom: 0,
   visible: false,
   position: "bottom",
@@ -147,6 +169,9 @@ SnackbarComponent.defaultProps = {
   textMessage: "",
   autoHidingTime: 0, // Default value will not auto hide the snack bar as the old version.
   actionProps: {}
+  containerStyle: {},
+  messageStyle: {},
+  actionStyle: {},
 };
 
 SnackbarComponent.propTypes = {
@@ -157,22 +182,28 @@ SnackbarComponent.propTypes = {
   actionHandler: PropTypes.func,
   left: PropTypes.number,
   right: PropTypes.number,
+  top: PropTypes.number,
   bottom: PropTypes.number,
   visible: PropTypes.bool,
   actionText: PropTypes.string,
-  textMessage: PropTypes.string,
-  position: PropTypes.oneOf(["bottom", "top"]), // bottom (default), top
+  textMessage: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  position: PropTypes.oneOf(['bottom', 'top']), // bottom (default), top
+  // eslint-disable-next-line react/no-unused-prop-types
   autoHidingTime: PropTypes.number, // How long (in milliseconds) the snack bar will be hidden.
+  containerStyle: ViewPropTypes.style,
+  messageStyle: Text.propTypes.style,
+  actionStyle: Text.propTypes.style,
   actionProps: PropTypes.shape({})
 };
 
 const styles = StyleSheet.create({
-  limit_container: {
-    position: "absolute",
-    overflow: "hidden",
+  limitContainer: {
+    position: 'absolute',
+    overflow: 'hidden',
     left: 0,
     right: 0,
-    zIndex: 9999
+    zIndex: 9999,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
   },
   container: {
     flexDirection: "row",
@@ -180,14 +211,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "absolute"
   },
-  text_msg: {
+  textMessage: {
     fontSize: 14,
     flex: 1,
     paddingLeft: 20,
     paddingTop: 14,
     paddingBottom: 14
   },
-  action_text: {
+  actionText: {
     fontSize: 14,
     fontWeight: "600",
     paddingRight: 20,
